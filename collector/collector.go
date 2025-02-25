@@ -110,13 +110,13 @@ func NewExporter(paths []string, logger log.Logger, cgroupv2 bool) *Exporter {
 		cpuUser: prometheus.NewDesc(prometheus.BuildFQName(Namespace, "cpu", "user_seconds"),
 			"Cumalitive CPU user seconds for cgroup", []string{"cgroup", "username", "uid", "jobid"}, nil),
 		cpuSystem: prometheus.NewDesc(prometheus.BuildFQName(Namespace, "cpu", "system_seconds"),
-			"Cumalitive CPU system seconds for cgroup", []string{"cgroup"}, nil),
+			"Cumalitive CPU system seconds for cgroup", []string{"cgroup", "username", "uid", "jobid"}, nil),
 		cpuTotal: prometheus.NewDesc(prometheus.BuildFQName(Namespace, "cpu", "total_seconds"),
-			"Cumalitive CPU total seconds for cgroup", []string{"cgroup"}, nil),
+			"Cumalitive CPU total seconds for cgroup", []string{"cgroup", "username", "uid", "jobid"}, nil),
 		cpus: prometheus.NewDesc(prometheus.BuildFQName(Namespace, "", "cpus"),
-			"Number of CPUs in the cgroup", []string{"cgroup"}, nil),
+			"Number of CPUs in the cgroup", []string{"cgroup", "username", "uid", "jobid"}, nil),
 		cpu_info: prometheus.NewDesc(prometheus.BuildFQName(Namespace, "", "cpu_info"),
-			"Information about the cgroup CPUs", []string{"cgroup", "cpus"}, nil),
+			"Information about the cgroup CPUs", []string{"cgroup", "cpus", "username", "uid", "jobid"}, nil),
 		memoryRSS: prometheus.NewDesc(prometheus.BuildFQName(Namespace, "memory", "rss_bytes"),
 			"Memory RSS used in bytes", []string{"cgroup"}, nil),
 		memoryCache: prometheus.NewDesc(prometheus.BuildFQName(Namespace, "memory", "cache_bytes"),
@@ -177,10 +177,10 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 			ch <- prometheus.MustNewConstMetric(e.collectError, prometheus.GaugeValue, 1, m.name)
 		}
 		ch <- prometheus.MustNewConstMetric(e.cpuUser, prometheus.GaugeValue, m.cpuUser, m.name, m.username, m.uid, m.jobid)
-		ch <- prometheus.MustNewConstMetric(e.cpuSystem, prometheus.GaugeValue, m.cpuSystem, m.name)
-		ch <- prometheus.MustNewConstMetric(e.cpuTotal, prometheus.GaugeValue, m.cpuTotal, m.name)
-		ch <- prometheus.MustNewConstMetric(e.cpus, prometheus.GaugeValue, float64(m.cpus), m.name)
-		ch <- prometheus.MustNewConstMetric(e.cpu_info, prometheus.GaugeValue, 1, m.name, m.cpu_list)
+		ch <- prometheus.MustNewConstMetric(e.cpuSystem, prometheus.GaugeValue, m.cpuSystem, m.name, m.username, m.uid, m.jobid)
+		ch <- prometheus.MustNewConstMetric(e.cpuTotal, prometheus.GaugeValue, m.cpuTotal, m.name, m.username, m.uid, m.jobid)
+		ch <- prometheus.MustNewConstMetric(e.cpus, prometheus.GaugeValue, float64(m.cpus), m.name, m.username, m.uid, m.jobid)
+		ch <- prometheus.MustNewConstMetric(e.cpu_info, prometheus.GaugeValue, 1, m.name, m.cpu_list, m.username, m.uid, m.jobid)
 		ch <- prometheus.MustNewConstMetric(e.memoryRSS, prometheus.GaugeValue, m.memoryRSS, m.name)
 		ch <- prometheus.MustNewConstMetric(e.memoryUsed, prometheus.GaugeValue, m.memoryUsed, m.name)
 		ch <- prometheus.MustNewConstMetric(e.memoryTotal, prometheus.GaugeValue, m.memoryTotal, m.name)
